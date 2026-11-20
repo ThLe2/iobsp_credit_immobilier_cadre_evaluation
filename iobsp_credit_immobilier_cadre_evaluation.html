@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Évaluation globale — Crédit immobilier (1/3)</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Karla:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#16243B; --blue:#1F4E79; --blue-2:#2E75B6; --paper:#F5F2EB;
+    --card:#FFFFFF; --ink:#1d2733; --muted:#5d6b7a; --line:#e3ddd0; --gold:#B08D57;
+    --ok:#2F7A4F; --ok-bg:#EAF4ED; --ko:#B23B3B; --ko-bg:#FAEDED;
+    --amber:#B5852A; --amber-bg:#FBF1DC;
+    --shadow:0 1px 2px rgba(22,36,59,.05),0 8px 24px rgba(22,36,59,.06);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Karla',-apple-system,system-ui,sans-serif;background:var(--paper);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:860px;margin:0 auto;padding:28px 20px 64px}
+  .card-main{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+  .header{background:var(--navy);color:#fff;padding:30px 34px}
+  .chapter-tag{display:inline-block;background:rgba(255,255,255,.14);color:#e9eef6;padding:5px 13px;border-radius:99px;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin-bottom:14px}
+  .chapter-tag span{color:var(--gold)}
+  .header h1{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:clamp(23px,4.2vw,33px);line-height:1.14;letter-spacing:-.01em;margin-bottom:8px}
+  .header p{font-size:14px;color:#b9c4d4}
+  .gold-rule{height:3px;width:60px;background:var(--gold);border:0;margin:16px 0 0}
+  .body{padding:30px 34px}
+  .identity{text-align:center;padding:14px 0}
+  .identity h2{font-family:'Fraunces',serif;font-weight:600;font-size:21px;color:var(--navy);margin-bottom:8px}
+  .identity p.sub{color:var(--muted);margin-bottom:26px;font-size:14.5px}
+  .form-group{margin-bottom:16px;text-align:left;max-width:420px;margin-left:auto;margin-right:auto}
+  .form-group label{display:block;font-size:13px;font-weight:700;color:var(--navy);margin-bottom:6px;letter-spacing:.02em}
+  .form-group input{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:9px;font-size:15px;font-family:'Karla',sans-serif;transition:border-color .2s;background:#fdfcf9}
+  .form-group input:focus{outline:none;border-color:var(--blue-2)}
+  .btn{cursor:pointer;font-family:'Karla',sans-serif;font-weight:700;font-size:15px;letter-spacing:.03em;border-radius:10px;transition:transform .12s,box-shadow .15s,filter .15s,background .15s}
+  .btn-primary{background:var(--blue);color:#fff;border:none;padding:13px 34px;margin:6px}
+  .btn-primary:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 20px rgba(31,78,121,.28)}
+  .btn-primary:disabled{opacity:.45;cursor:not-allowed}
+  .btn-gold{background:var(--gold);color:var(--navy)}
+  .btn-gold:hover:not(:disabled){filter:brightness(1.06);transform:translateY(-2px)}
+  .btn-secondary{background:#fff;color:var(--blue);border:1.5px solid var(--blue);padding:11px 28px;margin:6px}
+  .btn-secondary:hover:not(:disabled){background:#f0f4f9}
+  .btn-secondary:disabled{opacity:.4;cursor:not-allowed;border-color:#bbb;color:#bbb}
+  .stagiaire-bar{background:#efeadf;padding:11px 34px;border-bottom:1px solid var(--line);font-size:13px;color:var(--muted);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+  .stagiaire-bar strong{color:var(--navy)}
+  .consigne{background:#fff;border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:13.5px;line-height:1.5;color:#3a4654}
+  .consigne b{color:var(--navy)}
+  .meta{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+  .progress{flex:1;min-width:180px}
+  .progress .track{height:8px;background:#e6e0d3;border-radius:99px;overflow:hidden}
+  .progress .fill{height:100%;width:0;background:var(--blue-2);border-radius:99px;transition:width .4s cubic-bezier(.2,.7,.2,1)}
+  .progress .plabel{font-size:12.5px;color:var(--muted);margin-top:6px}
+  .scorepill{font-family:'Fraunces',serif;font-weight:600;color:var(--navy);background:#fff;border:1px solid var(--line);border-radius:99px;padding:7px 15px;font-size:14.5px}
+  .scorepill b{color:var(--blue);font-size:17px}
+  .cq{background:#fff;border:1px solid var(--line);border-radius:11px;padding:16px 18px;margin-bottom:13px;box-shadow:var(--shadow)}
+  .cq .ask{font-weight:600;font-size:15px;color:var(--ink);margin-bottom:10px;display:flex;gap:10px;align-items:flex-start}
+  .cq .ask .qn{flex:none;width:26px;height:26px;border-radius:50%;background:var(--navy);color:#fff;font-family:'Fraunces',serif;font-weight:600;font-size:13px;display:flex;align-items:center;justify-content:center;margin-top:1px}
+  .theme-tag{display:inline-block;background:#eef3f9;color:var(--blue);font-size:11px;font-weight:700;border-radius:5px;padding:2px 8px;margin-left:8px;letter-spacing:.02em;vertical-align:middle;white-space:nowrap}
+  .multi-tag{display:inline-block;background:#fbf1dc;color:var(--amber);font-size:11px;font-weight:700;border-radius:5px;padding:2px 8px;margin-left:6px;letter-spacing:.02em;vertical-align:middle;white-space:nowrap}
+  select.cs{width:100%;padding:11px 13px;border:1.5px solid var(--line);border-radius:9px;font-size:14.5px;font-family:'Karla',sans-serif;background:#fdfcf9;color:var(--ink);cursor:pointer;transition:border-color .15s}
+  select.cs:focus{outline:none;border-color:var(--blue-2)}
+  select.cs:disabled{cursor:default;opacity:1}
+  select.cs.ok{border-color:var(--ok);background:var(--ok-bg);color:var(--ok)}
+  select.cs.ko{border-color:var(--ko);background:var(--ko-bg);color:var(--ko)}
+  .checks{display:flex;flex-direction:column;gap:8px}
+  .checks label{display:flex;gap:10px;align-items:flex-start;border:1.5px solid var(--line);border-radius:9px;padding:10px 13px;background:#fdfcf9;cursor:pointer;font-size:14.5px;transition:.15s}
+  .checks label:hover{border-color:var(--blue-2)}
+  .checks label.ok{border-color:var(--ok);background:var(--ok-bg)}
+  .checks label.ko{border-color:var(--ko);background:var(--ko-bg)}
+  .checks input{margin-top:3px}
+  .open-tag{display:inline-block;background:#eaf4ed;color:var(--ok);font-size:11px;font-weight:700;border-radius:5px;padding:2px 8px;margin-left:6px;letter-spacing:.02em;vertical-align:middle;white-space:nowrap}
+  textarea.oa{width:100%;min-height:96px;padding:11px 13px;border:1.5px solid var(--line);border-radius:9px;font-size:14.5px;font-family:'Karla',sans-serif;background:#fdfcf9;color:var(--ink);resize:vertical;line-height:1.5}
+  textarea.oa:focus{outline:none;border-color:var(--blue-2)}
+  textarea.oa:disabled{cursor:default;opacity:1;background:#f7f5ef;border-color:var(--gold)}
+  .oa-hint{font-size:11.5px;color:var(--muted);margin-top:5px;font-style:italic}
+  .model{background:#f7f5ef;border:1px solid var(--gold);border-radius:9px;padding:13px 15px;margin-top:11px}
+  .model h5{margin:0 0 7px;font-family:'Fraunces',Georgia,serif;font-size:14px;color:var(--navy)}
+  .model p{margin:0 0 7px;font-size:13.5px;line-height:1.55}
+  .model ul{margin:6px 0 0;padding-left:17px;font-size:13px}
+  .model li{margin-bottom:3px}
+  .model .ref{color:var(--gold);font-weight:700;font-size:11.5px}
+  .model .note{font-size:12px;color:var(--muted);font-style:italic;margin-top:8px;padding-top:7px;border-top:1px dashed var(--line)}
+  .pass-banner{border-radius:10px;padding:15px 18px;margin:14px 0 4px;font-size:14.5px;line-height:1.55}
+  .pass-banner.ok{background:var(--ok-bg);border:1.5px solid var(--ok);color:#1f5c39}
+  .pass-banner.ko{background:var(--amber-bg);border:1.5px solid var(--amber);color:#8a6420}
+  .pass-banner b{display:block;font-family:'Fraunces',Georgia,serif;font-size:16px;margin-bottom:5px}
+  .cfb{max-height:0;overflow:hidden;opacity:0;transition:max-height .4s,opacity .35s;font-size:13px;border-left:3px solid var(--line);padding-left:14px}
+  .cfb.show{max-height:320px;opacity:1;margin-top:12px}
+  .cfb.good{border-color:var(--ok);color:#1c5234} .cfb.bad{border-color:var(--ko);color:#7a2222}
+  .cfb .vd{font-weight:700}
+  .cfb .ref{display:inline-block;margin-top:6px;font-size:12px;color:var(--blue);background:#eef3f9;border-radius:6px;padding:2px 8px;font-weight:600}
+  .actions{margin-top:24px;text-align:center}
+  .result-screen{text-align:center;padding:20px 0}
+  .score-circle{width:132px;height:132px;border-radius:50%;margin:0 auto 18px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;box-shadow:0 8px 24px rgba(22,36,59,.18)}
+  .score-circle.excellent{background:var(--ok)} .score-circle.good{background:var(--blue)}
+  .score-circle.average{background:var(--amber)} .score-circle.poor{background:var(--ko)}
+  .score-circle .sv{font-family:'Fraunces',serif;font-size:30px;font-weight:600}
+  .score-circle .sl{font-size:12px;opacity:.95;margin-top:2px;letter-spacing:.05em}
+  .result-msg{font-family:'Fraunces',serif;font-size:21px;font-weight:600;margin-bottom:8px;color:var(--navy)}
+  .result-detail{color:var(--muted);font-size:14px;margin-bottom:20px;max-width:56ch;margin-left:auto;margin-right:auto}
+  .recap{text-align:left;max-width:600px;margin:0 auto 8px}
+  .recap h4{font-family:'Fraunces',serif;font-weight:600;font-size:15px;color:var(--navy);margin-bottom:6px}
+  .recap-row{display:flex;align-items:center;gap:11px;padding:9px 4px;border-bottom:1px solid var(--line);font-size:13.5px}
+  .recap-row .dot{flex:none;width:11px;height:11px;border-radius:50%}
+  .recap-row .lab{flex:1;color:var(--ink)}
+  .recap-row .sc{font-weight:700;color:var(--navy);font-variant-numeric:tabular-nums}
+  .recap-row .hint{flex-basis:100%;font-size:12px;color:var(--blue);padding-left:22px}
+  .pdf-info{background:var(--amber-bg);border-left:4px solid var(--amber);padding:12px 16px;border-radius:8px;text-align:left;font-size:13px;color:#6d4c00;margin:18px 0}
+  .pdf-info strong{display:block;margin-bottom:4px}
+  .note{background:#eef3f9;border-left:4px solid var(--blue-2);padding:12px 16px;border-radius:8px;text-align:left;font-size:13px;color:var(--blue);margin:16px 0;line-height:1.5}
+  footer{margin-top:26px;text-align:center;font-size:12px;color:#9a9384;letter-spacing:.04em}
+</style>
+
+<style>body{-webkit-user-select:none;-moz-user-select:none;user-select:none}
+textarea,input{-webkit-user-select:text;-moz-user-select:text;user-select:text}</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card-main">
+    <div class="header">
+      <div class="chapter-tag">IOBSP Niveau 2 · Journée 5 <span>/</span> Crédit immobilier (1/3) — Évaluation globale</div>
+      <h1>Évaluation globale — Crédit immobilier (1/3)</h1>
+      <p>40 questions · 22 à choix + 18 ouvertes (format examen) · environ 1 h 30 · seuil de réussite 70 %</p>
+      <hr class="gold-rule">
+    </div>
+
+    <div id="screen-identity" class="body">
+      <div class="identity">
+        <h2>Avant de commencer</h2>
+        <p class="sub">Renseignez vos informations pour personnaliser votre attestation de réussite.</p>
+        <div class="form-group"><label for="nom">Nom</label><input type="text" id="nom" placeholder="Votre nom de famille" autocomplete="family-name"></div>
+        <div class="form-group"><label for="prenom">Prénom</label><input type="text" id="prenom" placeholder="Votre prénom" autocomplete="given-name"></div>
+        <button class="btn btn-primary" id="btn-start" disabled onclick="startQuiz()">Commencer l'évaluation</button>
+      </div>
+    </div>
+
+    <div id="screen-quiz" style="display:none;">
+      <div class="stagiaire-bar"><span>Stagiaire&nbsp;: <strong id="stagiaire-name"></strong></span><span id="date-quiz"></span></div>
+      <div class="body">
+        <div class="consigne"><b>🎯 Évaluation globale — Journée 5, crédit immobilier (1/3).</b> 40 questions couvrant les quatre modules : <b>22 questions à choix</b> et <b>18 questions ouvertes</b> rédigées, au format de l'épreuve.<br><br>Le pourcentage affiché en fin d'évaluation est calculé sur les <b>22 questions à choix</b>. Les questions ouvertes ne sont pas notées automatiquement : la réponse attendue et les points de correction s'affichent à la validation, et votre rédaction est reproduite dans l'attestation pour relecture par votre formateur.<br><br><b>Format de l'épreuve réelle :</b> <b>55 questions de type QCM</b> et <b>45 questions ouvertes</b>. <b>70 % de réussite</b> sont exigés pour obtenir l'examen.<br><br>Copier-coller désactivé. Prenez votre temps : cette évaluation demande environ 1 h 30.</div>
+        <div class="meta">
+          <div class="progress"><div class="track"><div class="fill" id="fill"></div></div><div class="plabel" id="plabel">0 / 40 répondu</div></div>
+          <div class="scorepill">Score&nbsp;: <b id="score">—</b> / 22</div>
+        </div>
+        <div id="qcm"></div>
+        <div class="actions"><button class="btn btn-primary" id="btn-validate" disabled onclick="validateQuiz()">Validation et génération du PDF</button></div>
+      </div>
+    </div>
+
+    <div id="screen-result" style="display:none;">
+      <div class="stagiaire-bar"><span>Stagiaire&nbsp;: <strong id="stagiaire-name-2"></strong></span><span id="date-quiz-2"></span></div>
+      <div class="body">
+        <div class="result-screen">
+          <div class="score-circle" id="score-circle"><div class="sv" id="score-value">0/22</div><div class="sl" id="score-label">questions</div></div>
+          <div class="result-msg" id="result-message"></div>
+          <div id="pass-banner" style="display:none;"></div>
+          <div class="result-detail" id="result-detail"></div>
+          <div class="recap" id="recap-block"><h4>Bilan par thème</h4><div id="recap-list"></div></div>
+          <div class="note" id="note-pdf" style="display:none;"></div>
+          <div class="actions">
+            <button class="btn btn-secondary" id="btn-restart" onclick="restartQuiz()">↻ Refaire l'évaluation</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>TMK Performances - N° Siret : 49841924100027 - Code NAF : 8559A</footer>
+  </div>
+</div>
+
+<script>
+const CFG = {"THEME_INFO": {"A": {"label": "M1 — L'encadrement du crédit immobilier"}, "B": {"label": "M2 — Les intervenants du marché"}, "C": {"label": "M3 — La publicité foncière"}, "D": {"label": "M4 — Le TAEG et l'usure"}, "E": {"label": "M4 — Taux et amortissement"}}, "THEME_ORDER": ["A", "B", "C", "D", "E"], "QUESTIONS": [{"th": "A", "kind": "qcm", "ask": "Quelle loi fonde le régime du crédit immobilier ?", "options": ["La loi Scrivener du 10 janvier 1978", "La loi Scrivener du 13 juillet 1979", "La loi SRU du 13 décembre 2000", "La loi MURCEF du 11 décembre 2001"], "correct": [1], "multi": false, "expl": "Il existe deux lois Scrivener : celle de 1978 vise le crédit à la consommation, celle de 1979 le crédit immobilier. La confusion est classique.", "ref": "loi n° 79-596 du 13 juillet 1979"}, {"th": "A", "kind": "qcm", "ask": "À partir de quand l'emprunteur peut-il valablement accepter l'offre de prêt ?", "options": ["Dès sa réception", "À compter du onzième jour suivant la réception", "À compter du trentième jour", "Après la signature de l'acte authentique"], "correct": [1], "multi": false, "expl": "Le délai de réflexion est de dix jours à compter de la réception de l'offre. La règle est d'ordre public : ni l'emprunteur ni le prêteur ne peuvent y renoncer, et sa méconnaissance est sanctionnée par la nullité du contrat de prêt.", "ref": "art. L. 313-34 C. consom."}, {"th": "A", "kind": "qcm", "ask": "Pendant combien de temps le prêteur doit-il maintenir les conditions de son offre ?", "options": ["Dix jours", "Au moins trente jours à compter de sa réception par l'emprunteur", "Exactement trente jours, sans prolongation possible", "Quatre mois"], "correct": [1], "multi": false, "expl": "C'est un minimum. Dix jours d'interdiction et trente jours de maintien laissent en pratique une vingtaine de jours pour décider, sans que la banque puisse modifier son taux.", "ref": "art. L. 313-34 C. consom."}, {"th": "A", "kind": "qcm", "ask": "Un compromis est signé le lundi 2 mars, sa notification reçue le vendredi 6 mars. Le délai de rétractation SRU court à compter de quelle date ?", "options": ["Du 2 mars, date de signature", "Du 6 mars, date de notification", "Du 3 mars", "Du 16 mars"], "correct": [1], "multi": false, "expl": "L'article L. 271-1 du code de la construction et de l'habitation vise la notification, non la signature. C'est l'erreur la plus fréquente, y compris chez les professionnels de l'immobilier : quatre jours d'écart suffisent à rendre valable une rétractation que l'on croyait tardive.", "ref": "art. L. 271-1 CCH"}, {"th": "A", "kind": "qcm", "ask": "Le délai de rétractation de l'acquéreur a-t-il toujours été de dix jours ?", "options": ["Oui, depuis la loi SRU de 2000", "Non : sept jours à l'origine, portés à dix par la loi du 6 août 2015", "Non : quinze jours à l'origine", "Il varie selon le montant de l'opération"], "correct": [1], "multi": false, "expl": "La loi n° 2015-990 du 6 août 2015, dite loi Macron, l'a porté de sept à dix jours à compter du 8 août 2015. Un support parlant de sept jours est antérieur à cette date.", "ref": "loi n° 2015-990 du 6 août 2015, art. 210"}, {"th": "A", "kind": "open", "ask": "Distinguez le délai de rétractation de l'acquéreur et le délai de réflexion de l'emprunteur : bénéficiaire, texte, point de départ, nature et possibilité d'y renoncer.", "model": "Le délai de rétractation bénéficie à l'acquéreur non professionnel d'un immeuble à usage d'habitation. Il figure à l'article L. 271-1 du code de la construction et de l'habitation, issu de la loi SRU du 13 décembre 2000, et il est de dix jours depuis la loi du 6 août 2015 — sept auparavant. Il court à compter de la notification de l'avant-contrat, au tout début de l'opération, et il permet de revenir sur un engagement déjà pris : c'est une rétractation. C'est une faculté, que l'acquéreur peut ne pas exercer. Le délai de réflexion bénéficie à l'emprunteur. Il figure à l'article L. 313-34 du code de la consommation, hérité de la loi Scrivener de 1979, et il est de dix jours à compter de la réception de l'offre de prêt, donc bien plus tard dans l'opération. Il n'autorise rien : il interdit d'accepter avant le onzième jour. C'est une règle d'ordre public à laquelle l'emprunteur ne peut pas renoncer, même volontairement, et sa méconnaissance est sanctionnée par la nullité du contrat de prêt. En résumé : l'acquéreur se rétracte de ce qu'il a signé, l'emprunteur réfléchit avant de signer.", "points": ["SRU : acquéreur non professionnel, L. 271-1 CCH, notification de l'avant-contrat", "Scrivener : emprunteur, L. 313-34 C. consom., réception de l'offre", "Rétractation = revenir sur un engagement · réflexion = interdiction de s'engager", "Le premier est une faculté, le second une règle d'ordre public", "Sanction du second : nullité du contrat de prêt"], "expl": "", "ref": "art. L. 271-1 CCH et L. 313-34 C. consom.", "minlen": 130}, {"th": "A", "kind": "open", "ask": "Énoncez les trois apports de la loi Scrivener en matière immobilière et expliquez, pour chacun, ce qu'il protège.", "model": "Le premier apport est l'offre préalable : le prêteur doit formuler par écrit une offre dont le contenu est réglementé, adressée à l'emprunteur et, le cas échéant, aux cautions. Elle protège contre l'engagement pris sans document, en imposant que les conditions du crédit soient écrites et comparables. Le deuxième est le délai de réflexion : l'emprunteur dispose de dix jours à compter de la réception de l'offre, pendant lesquels il ne peut pas l'accepter, l'acceptation n'étant possible qu'à compter du onzième jour. Il ne protège pas seulement contre la précipitation de l'emprunteur, mais aussi contre la pression du vendeur ou du prêteur, puisqu'il s'agit d'une interdiction faite aux deux parties, d'ordre public, sanctionnée par la nullité du contrat de prêt. Le troisième est l'interdépendance du prêt et de la vente : la vente est réputée conclue sous la condition suspensive de l'obtention du prêt, de sorte que si le prêt n'est pas obtenu, la vente est caduque et les sommes versées doivent être restituées. Il protège contre le risque de rester engagé à acheter un bien que l'on ne peut pas financer.", "points": ["L'offre préalable écrite et réglementée, adressée aussi aux cautions", "Le délai de réflexion de dix jours, acceptation au onzième", "Ordre public, interdiction faite aux deux parties, sanction = nullité", "L'interdépendance : condition suspensive de l'obtention du prêt", "Vente caduque et restitution des sommes versées"], "expl": "", "ref": "loi n° 79-596 du 13 juillet 1979 et art. L. 313-34 C. consom.", "minlen": 120}, {"th": "A", "kind": "open", "ask": "Que doit mentionner tout document publicitaire portant sur une opération de crédit immobilier, et quel lien ces mentions ont-elles avec la loi Scrivener ?", "model": "Tout document publicitaire portant sur une opération de crédit immobilier doit mentionner trois éléments. D'abord que l'emprunteur dispose d'un délai de réflexion de dix jours. Ensuite que la vente est subordonnée à l'obtention du prêt. Enfin que, si le prêt n'est pas obtenu, le vendeur doit rembourser les sommes versées à l'acquéreur. Le lien avec la loi Scrivener est direct et il est éclairant : ces trois mentions correspondent très exactement aux trois apports de cette loi, à savoir le délai de réflexion, l'interdépendance du prêt et de la vente, et la restitution des sommes versées en cas de non-obtention. La publicité récapitule donc la loi, et c'est ce qui permet de mémoriser les deux ensemble. J'ajoute que cette obligation concerne les documents que je diffuse moi-même en tant qu'intermédiaire, et pas seulement ceux du prêteur.", "points": ["Le délai de réflexion de dix jours", "La subordination de la vente à l'obtention du prêt", "La restitution des sommes versées si le prêt n'est pas obtenu", "Ces trois mentions = les trois apports de Scrivener", "L'obligation vise aussi les documents de l'intermédiaire"], "expl": "", "ref": "C. consom., publicité en crédit immobilier", "minlen": 110}, {"th": "A", "kind": "open", "ask": "Quel texte fonde le régime en vigueur du crédit immobilier au-delà de Scrivener, et qu'a-t-il ajouté ? La réforme du 20 novembre 2026 s'y applique-t-elle ?", "model": "Le régime en vigueur résulte de la transposition d'une directive européenne de 2014 sur les contrats de crédit relatifs aux biens immobiliers à usage résidentiel, opérée par l'ordonnance du 25 mars 2016. Cette ordonnance n'a pas supprimé les protections issues de la loi Scrivener : elle leur a ajouté un étage. Elle a introduit la fiche d'information standardisée européenne, document normalisé permettant de comparer les offres dans toute l'Union. Elle a imposé la disponibilité permanente d'informations générales sur les contrats de crédit, sur papier, support durable ou forme électronique — et cette obligation pèse sur le prêteur comme sur l'intermédiaire de crédit, ce qui me concerne directement. Elle a transposé en matière immobilière l'obligation d'évaluer la solvabilité de l'emprunteur, et elle a encadré les explications adéquates, la publicité et le taux annuel effectif global. Quant à la réforme applicable au 20 novembre 2026, elle ne s'applique pas ici : l'ordonnance du 3 septembre 2025 transpose la directive de 2023 sur le crédit à la consommation et ne modifie pas le régime immobilier.", "points": ["Ordonnance du 25 mars 2016, transposant la directive de 2014", "Elle complète Scrivener sans la supprimer", "FISE · informations générales · solvabilité · explications · publicité · TAEG", "Les informations générales sont dues aussi par l'INTERMÉDIAIRE", "La réforme du 20 novembre 2026 ne concerne PAS le crédit immobilier"], "expl": "", "ref": "ordonnance n° 2016-351 du 25 mars 2016", "minlen": 110}, {"th": "B", "kind": "qcm", "ask": "Quelles affirmations sont exactes au sujet du notaire ? (plusieurs réponses)", "options": ["Il détient le monopole de l'authenticité", "Sa rémunération prend la forme d'émoluments tarifés", "Son devoir de conseil est dû à toutes les parties", "Il est soumis à la loi Hoguet"], "correct": [0, 1, 2], "multi": true, "expl": "Le notaire n'est PAS soumis à la loi Hoguet : il intervient dans les transactions immobilières mais relève d'autres textes, et peut d'ailleurs exercer une activité de négociation dans son propre cadre statutaire.", "ref": "statut d'officier public et ministériel"}, {"th": "B", "kind": "qcm", "ask": "Que recouvrent les lettres T, G et S de la carte professionnelle ?", "options": ["Titulaire, gérant, salarié", "Transaction, gestion, syndic", "Terrain, gestion, succession", "Transaction, garantie, sûreté"], "correct": [1], "multi": false, "expl": "La carte est délivrée par le président de la CCI territoriale pour trois ans, sous conditions d'aptitude professionnelle et de moralité. Un professionnel exerçant plusieurs activités doit détenir plusieurs cartes.", "ref": "loi n° 70-9 du 2 janvier 1970"}, {"th": "B", "kind": "qcm", "ask": "Le conseil en gestion de patrimoine est-il un statut réglementé ?", "options": ["Oui, avec immatriculation à l'ORIAS en catégorie CGP", "Non : c'est une appellation professionnelle, ce sont les activités exercées qui sont réglementées", "Oui, avec une carte délivrée par l'AMF", "Oui, depuis la réforme du courtage de 2021"], "correct": [1], "multi": false, "expl": "Il n'existe ni carte, ni registre propre, ni autorité de tutelle du CGP en tant que tel : n'importe qui peut se dire conseiller en gestion de patrimoine. Le CGP est une bannière, pas un statut.", "ref": "absence de statut propre au CGP"}, {"th": "B", "kind": "qcm", "ask": "À quelle association le conseiller en investissements financiers doit-il adhérer ?", "options": ["Une association agréée par l'ACPR", "Une association agréée par l'AMF", "Une association agréée par l'ORIAS", "Aucune : l'adhésion est facultative"], "correct": [1], "multi": false, "expl": "C'est un piège classique. Le mécanisme du filtre associatif est le même que celui vu en journée 4 pour les courtiers en opérations de banque, mais l'autorité qui agrée diffère : l'AMF pour le CIF, l'ACPR pour le courtier.", "ref": "art. L. 541-4 C. mon. fin."}, {"th": "B", "kind": "open", "ask": "Présentez la loi Hoguet : son objet, les obligations qu'elle impose et la sanction attachée à son article 6.", "model": "La loi n° 70-9 du 2 janvier 1970, dite loi Hoguet, réglemente l'activité d'entremise et de gestion immobilière. Elle poursuivait deux objectifs : protéger le public contre les détournements de fonds et structurer une profession qui n'était pas réglementée. Elle a été modifiée à plusieurs reprises, notamment par la loi ALUR de 2014 et la loi ELAN de 2018. Elle impose cinq obligations. D'abord une carte professionnelle, délivrée par le président de la chambre de commerce et d'industrie territoriale pour trois ans, sous conditions d'aptitude professionnelle et de moralité, portant la lettre T pour la transaction, G pour la gestion ou S pour le syndic — une carte par activité exercée. Ensuite une garantie financière, exigée dès lors que le professionnel manie des fonds pour autrui, avec une exception pour celui qui s'engage sur l'honneur à n'en recevoir aucun. Puis une assurance de responsabilité civile professionnelle. Puis un mandat écrit, exigé par l'article 6 : sans mandat, l'agent immobilier ne peut percevoir aucune rémunération, quelle que soit la réalité du travail accompli. Enfin une obligation de formation continue. La perception d'une somme d'argent en violation de l'article 6 est un délit puni de deux ans d'emprisonnement et de trente mille euros d'amende.", "points": ["Loi n° 70-9 du 2 janvier 1970, modifiée par ALUR et ELAN", "Objectifs : protéger contre les détournements, structurer la profession", "Carte T/G/S, CCI, trois ans, une par activité", "Garantie financière, RC professionnelle, formation continue", "Mandat écrit (art. 6) : sans mandat, pas de rémunération", "Sanction : deux ans d'emprisonnement et 30 000 € d'amende"], "expl": "", "ref": "loi n° 70-9 du 2 janvier 1970", "minlen": 120}, {"th": "B", "kind": "open", "ask": "Un professionnel se présente comme conseiller en gestion de patrimoine et propose à votre cliente un placement en assurance vie, un arbitrage sur instruments financiers et le montage de son crédit. Que vérifiez-vous, et comment ?", "model": "Je pars du principe que le titre de conseiller en gestion de patrimoine ne l'autorise à rien : ce n'est pas un statut réglementé, il n'existe ni carte, ni registre propre, ni autorité de tutelle du conseil en gestion de patrimoine en tant que tel, et n'importe qui peut se prévaloir de cette appellation. Ce qui est réglementé, ce sont les activités qu'il propose, et il en propose trois, qui supposent trois statuts distincts. Distribuer un contrat d'assurance vie suppose le statut d'intermédiaire en assurance, sous le contrôle de l'ACPR. Conseiller un arbitrage sur des instruments financiers suppose le statut de conseiller en investissements financiers, régi par les articles L. 541-1 et suivants du code monétaire et financier, avec adhésion à une association agréée par l'AMF. Monter un crédit suppose le statut d'intermédiaire en opérations de banque et en services de paiement, c'est-à-dire le mien. Je vérifie donc sous quels statuts il est réellement immatriculé, et la vérification est simple : le registre de l'ORIAS est public et se consulte en ligne, exactement comme ma cliente peut vérifier ma propre immatriculation.", "points": ["Le titre de CGP n'est pas un statut et n'autorise rien", "Trois activités proposées, trois statuts distincts requis", "Assurance vie → intermédiaire en assurance (ACPR)", "Instruments financiers → CIF (L. 541-1 et s., association agréée AMF)", "Crédit → IOBSP · vérification sur le registre public de l'ORIAS"], "expl": "", "ref": "statuts du CIF, de l'IAS et de l'IOBSP", "minlen": 120}, {"th": "B", "kind": "open", "ask": "Un agent immobilier titulaire de la carte T annonce à son acquéreur qu'il va monter son dossier de financement. Qu'en pensez-vous, et que proposez-vous ?", "model": "La carte T ne couvre que la transaction immobilière. Présenter une opération de banque et aider à sa conclusion relève de l'intermédiation en opérations de banque et en services de paiement : s'il n'est pas immatriculé à l'ORIAS à ce titre, il exerce illégalement, et le défaut d'immatriculation est puni par l'article L. 546-4 du code monétaire et financier de deux ans d'emprisonnement et de six mille euros d'amende. Il faut noter que cette situation est extrêmement fréquente et le plus souvent de bonne foi : beaucoup d'agences rendent ce service sans avoir conscience de franchir une frontière statutaire. C'est pourquoi la bonne réaction n'est pas le reproche mais la proposition. La solution habituelle est un partenariat formalisé : l'agence oriente ses acquéreurs vers un intermédiaire immatriculé, et chacun reste dans son statut. Je rappelle enfin le principe général : le cumul de statuts est parfaitement licite, et rien n'interdit à cette agence de se faire immatriculer comme IOBSP — ce qui ne l'est pas, c'est d'exercer une activité sans détenir le statut qui la conditionne.", "points": ["La carte T ne couvre que la transaction", "Monter un financement = intermédiation en opérations de banque", "Défaut d'immatriculation : L. 546-4, deux ans et 6 000 €", "Situation fréquente et souvent de bonne foi", "Proposer un partenariat formalisé · le cumul de statuts est licite"], "expl": "", "ref": "art. L. 546-4 C. mon. fin. · loi Hoguet", "minlen": 110}, {"th": "C", "kind": "qcm", "ask": "Quel texte régit aujourd'hui la publicité foncière ?", "options": ["Les articles 710-1 et suivants du code civil", "Le décret n° 55-22 du 4 janvier 1955", "L'ordonnance du 19 juin 2024", "La loi SRU du 13 décembre 2000"], "correct": [1], "multi": false, "expl": "L'ordonnance du 19 juin 2024 devait codifier la matière aux articles 710-1 et suivants du code civil et abroger le décret de 1955 — mais elle est DEVENUE CADUQUE : le projet de loi de ratification n'a pas été déposé avant le 20 septembre 2024. Le décret de 1955 reste le seul texte applicable.", "ref": "décret du 4 janvier 1955 · ord. n° 2024-562 du 19 juin 2024"}, {"th": "C", "kind": "qcm", "ask": "Quel est l'effet principal de la publicité foncière ?", "options": ["Créer le droit de propriété de l'acquéreur", "Rendre les actes opposables aux tiers", "Valider les actes irréguliers", "Garantir le paiement du créancier inscrit"], "correct": [1], "multi": false, "expl": "Elle n'est PAS constitutive de droits. Un droit non publié existe entre les parties mais ne peut être opposé à ceux qui n'étaient pas à l'acte.", "ref": "décret n° 55-22 du 4 janvier 1955"}, {"th": "C", "kind": "qcm", "ask": "Un vendeur cède le même bien à deux acquéreurs successifs. Le second publie avant le premier. Qui l'emporte ?", "options": ["Le premier acheteur, dont l'acte est antérieur", "Le second acheteur, qui a publié le premier", "Les deux ventes sont nulles", "Le bien est partagé"], "correct": [1], "multi": false, "expl": "Les deux ventes sont valables entre les parties. Mais seule la publication rend le droit opposable aux tiers, et le premier acheteur est un tiers à l'égard du second. Il lui reste un recours contre le vendeur.", "ref": "décret du 4 janvier 1955"}, {"th": "C", "kind": "qcm", "ask": "Deux formalités sont déposées le même jour sur le même immeuble : l'une à 16 h 10 avec un titre du 6 avril, l'autre à 9 h 05 avec un titre du 10 avril. Laquelle prime ?", "options": ["Celle déposée à 9 h 05, la première arrivée", "Celle dont le titre est du 6 avril, le plus ancien", "Elles sont à égalité de rang", "Celle dont la créance est la plus élevée"], "correct": [1], "multi": false, "expl": "Celle qui est requise en vertu du titre dont la date est la plus ancienne prime, quel que soit l'ordre du registre des dépôts. Ce n'est pas l'heure de dépôt qui départage, c'est l'ancienneté du titre.", "ref": "décret du 4 janvier 1955"}, {"th": "C", "kind": "qcm", "ask": "Quel service tient le fichier immobilier ?", "options": ["La conservation des hypothèques", "Le service de la publicité foncière, qui lui a succédé le 1er janvier 2013", "Le cadastre", "Le greffe du tribunal judiciaire"], "correct": [1], "multi": false, "expl": "L'appellation « conservation des hypothèques » n'a plus cours depuis plus de dix ans, même si elle circule encore chez les praticiens.", "ref": "service de la publicité foncière"}, {"th": "C", "kind": "open", "ask": "Expliquez pourquoi l'on dit que la publicité foncière n'est pas constitutive de droits, en vous appuyant sur l'exemple de deux acquéreurs successifs.", "model": "La publicité foncière ne crée aucun droit : elle rend opposable. Le droit de propriété naît de l'acte, non de sa publication. L'exemple des deux acquéreurs successifs le montre bien. Si un vendeur cède le même bien à deux acheteurs par deux actes authentiques successifs, les deux ventes sont valables entre les parties : chacune a produit ses effets entre le vendeur et son acquéreur. Celle qui l'emporte n'est pourtant pas la première signée, mais la première publiée. La raison n'est pas que la publication aurait rendu le second acheteur propriétaire : c'est que seule la publication rend un droit opposable aux tiers, et que le premier acheteur est, à l'égard du second, un tiers. Le premier acheteur conserve un recours contre le vendeur, sur le terrain de la responsabilité et le cas échéant de la fraude, mais il ne récupère pas le bien. La formule à retenir est donc que la publicité foncière ne fabrique pas le droit : elle décide qui peut s'en prévaloir.", "points": ["Elle ne crée rien : le droit naît de l'acte", "Les deux ventes sont valables entre les parties", "Le premier PUBLIÉ l'emporte, non le premier signé", "Parce que seule la publication rend opposable aux tiers", "Recours du premier acheteur contre le vendeur, mais pas de restitution"], "expl": "", "ref": "décret n° 55-22 du 4 janvier 1955", "minlen": 110}, {"th": "C", "kind": "open", "ask": "Un notaire vous annonce que la vente que vous financez ne pourra pas être publiée : le bien provient d'une succession jamais réglée. Expliquez le principe en cause et les conséquences pour votre dossier.", "model": "Le principe en cause est l'effet relatif de la publicité foncière, posé par l'article 3 du décret du 4 janvier 1955 : aucun acte sujet à publicité ne peut être publié si le titre du disposant, ou du dernier titulaire, n'a pas été préalablement publié. La vendeuse dispose d'un bien dont son propre titre n'a jamais été publié, faute d'attestation notariée de propriété établie et publiée après le décès. La chaîne des titres est donc rompue, et la vente est irrecevable à la publication tant que la situation n'est pas régularisée. Les conséquences pour mon dossier sont concrètes. Ce n'est pas un simple retard de formalité : il faut régler la succession, faire établir puis publier l'attestation notariée, ce qui se compte en semaines et parfois en mois. Or l'offre de prêt a une durée de validité limitée. Si la régularisation dépasse ce délai, il faudra émettre une nouvelle offre, aux conditions du moment, et le taux ne sera plus nécessairement le même. Le réflexe à prendre est donc de vérifier tôt, dès qu'un bien provient d'une succession, d'une donation-partage ou d'une indivision ancienne, que la chaîne des titres publiés est complète.", "points": ["Effet relatif, article 3 du décret du 4 janvier 1955", "Le titre du disposant n'a jamais été publié : chaîne rompue", "Publication refusée tant que la chaîne n'est pas reconstituée", "Délai de plusieurs semaines à plusieurs mois", "Risque d'expiration de l'offre de prêt et de renégociation du taux"], "expl": "", "ref": "art. 3 du décret du 4 janvier 1955", "minlen": 110}, {"th": "C", "kind": "open", "ask": "Que prévoit l'ordonnance du 19 juin 2024, et pourquoi ne faut-il pas l'enseigner comme du droit positif ?", "model": "L'ordonnance n° 2024-562 du 19 juin 2024 devait modifier et codifier le droit de la publicité foncière. Elle abrogeait le décret du 4 janvier 1955 et transférait la matière dans le code civil, aux articles 710-1 à 710-47 nouveaux, en donnant enfin à la publicité foncière une définition officielle : l'opération par laquelle l'état des droits réels portant sur les immeubles est rendu public, à des fins d'opposabilité aux tiers ou d'information. Elle modifiait également les articles 2421 et suivants relatifs à l'inscription des hypothèques. Elle ne doit pourtant pas être enseignée comme du droit positif, car elle est devenue caduque : le projet de loi de ratification n'a pas été déposé avant le 20 septembre 2024, comme l'exige l'article 38 de la Constitution. Elle n'entrera donc pas en vigueur, et c'est le décret de 1955 qui s'applique. C'est l'inverse du réflexe pris pour le crédit à la consommation, où une réforme datée devait être anticipée : ici, un texte publié ne s'appliquera jamais sous cette forme, et le présenter comme le droit en vigueur serait une erreur. À l'examen, la réponse attendue reste le décret du 4 janvier 1955.", "points": ["Ordonnance n° 2024-562 du 19 juin 2024", "Abroge le décret de 1955, codifie aux art. 710-1 à 710-47 du code civil", "Définition officielle · modifie les art. 2421 et s.", "CADUQUE : ratification non déposée avant le 20 septembre 2024", "Le décret de 1955 reste applicable ; réponse attendue à l'examen"], "expl": "", "ref": "ord. n° 2024-562 du 19 juin 2024 (caduque) · Constitution, art. 38", "minlen": 110}, {"th": "C", "kind": "open", "ask": "Expliquez ce qu'est le rang d'une inscription, comment il se détermine, et ce qu'il décide concrètement.", "model": "Lorsque plusieurs créanciers sont inscrits sur le même immeuble, ils ne sont pas égaux : ils sont classés, et ce classement s'appelle le rang. Il se détermine par la date d'inscription. À cet égard, il faut se souvenir que l'hypothèque légale spéciale du prêteur de deniers prend rang à la date de l'inscription depuis la réforme du droit des sûretés du 15 septembre 2021, et non plus rétroactivement au jour de la vente. Une règle particulière régit le cas où plusieurs formalités sont requises le même jour sur le même immeuble : celle qui est requise en vertu du titre dont la date est la plus ancienne est réputée d'un rang antérieur, quel que soit l'ordre du registre des dépôts. Ce n'est donc pas l'heure de dépôt qui départage, mais l'ancienneté du titre. Ce que le rang décide est très concret : en cas de vente forcée, le premier inscrit est payé d'abord sur le prix, le second ne reçoit que ce qui reste, et le dernier souvent rien. Sur un bien vendu deux cent quarante mille euros et grevé de deux cent mille euros au premier rang et quatre-vingt-dix mille au second, le créancier de second rang encaisse au mieux quarante mille euros et perd le solde.", "points": ["Le rang classe les créanciers inscrits sur un même immeuble", "Il se détermine par la date d'inscription", "HLSPD : rang à la date de l'inscription depuis 2021", "Même jour : c'est la date du TITRE qui prime, pas l'heure du dépôt", "En vente forcée : le premier est payé, le dernier souvent rien"], "expl": "", "ref": "décret du 4 janvier 1955 · ord. n° 2021-1192", "minlen": 110}, {"th": "D", "kind": "qcm", "ask": "Quel critère détermine si un coût entre dans le TAEG ?", "options": ["Son montant", "Le fait qu'il conditionne l'octroi du crédit", "L'identité de celui qui l'encaisse", "Le fait qu'il soit payé au démarrage"], "correct": [1], "multi": false, "expl": "C'est le critère unique. Peu importe l'intitulé — frais, commission, parts sociales, assurance : si le prêt ne peut pas être obtenu sans, cela entre dans le TAEG.", "ref": "art. L. 314-1 et s. C. consom."}, {"th": "D", "kind": "qcm", "ask": "Quels éléments entrent dans le TAEG ? (plusieurs réponses)", "options": ["Les primes d'assurance emprunteur obligatoire", "Les frais de garantie connus et déterminables", "Les frais d'intermédiation supportés par le client", "Les frais de notaire liés à l'acquisition"], "correct": [0, 1, 2], "multi": true, "expl": "Les frais de notaire d'acquisition sont EXCLUS : ils sont dus que le bien soit financé à crédit ou payé comptant. Ils appartiennent à l'achat, non au prêt.", "ref": "art. L. 314-1 et s. C. consom."}, {"th": "D", "kind": "qcm", "ask": "Quelle méthode de calcul s'applique au TAEG d'un crédit immobilier de particulier ?", "options": ["La méthode proportionnelle", "La méthode équivalente, dite actuarielle", "La moyenne pondérée des échéances", "Au choix du prêteur"], "correct": [1], "multi": false, "expl": "Elle assure, selon la méthode des intérêts composés, l'égalité entre les sommes prêtées et l'ensemble des versements dus. La méthode proportionnelle est réservée aux prêts professionnels et aux personnes morales de droit public.", "ref": "art. R. 314-3 C. consom."}, {"th": "D", "kind": "qcm", "ask": "Qui fixe le taux d'usure, et à quelle fréquence ?", "options": ["Le ministère de l'Économie, annuellement", "La Banque de France, trimestriellement, par catégorie de prêt", "L'ACPR, semestriellement", "Chaque établissement, librement"], "correct": [1], "multi": false, "expl": "En matière immobilière, la catégorie dépend notamment de la durée et du caractère fixe ou variable du taux. Aucun seuil n'est chiffré dans les supports : ils changent chaque trimestre.", "ref": "art. L. 314-6 C. consom."}, {"th": "D", "kind": "qcm", "ask": "Quelle est la sanction du dépassement du taux d'usure ?", "options": ["La nullité du contrat de prêt", "L'imputation des perceptions excessives sur les intérêts échus, puis sur le capital", "Le remboursement immédiat du capital", "Une amende administrative"], "correct": [1], "multi": false, "expl": "Article L. 341-48 : les perceptions excessives s'imputent de plein droit sur les intérêts normaux échus, puis sur le capital, et sont restituées si la dette est éteinte. L'usure est en outre un délit (L. 341-50 : 2 ans d'emprisonnement et 300 000 € d'amende).", "ref": "art. L. 341-48 et L. 341-50 C. consom."}, {"th": "D", "kind": "open", "ask": "Un client vous demande pourquoi les frais de notaire, les plus lourds de son opération, ne figurent pas dans le TAEG. Répondez-lui.", "model": "Le TAEG obéit à un critère unique : il intègre tous les coûts qui conditionnent l'octroi du crédit. Autrement dit, tout ce sans quoi le prêt ne peut pas être obtenu. Les frais de notaire liés à l'acquisition ne répondent pas à ce critère : ils sont dus dès lors qu'il y a achat d'un bien immobilier, que celui-ci soit financé à crédit ou payé comptant. Ils appartiennent donc à l'achat et non au prêt, et c'est pour cette raison qu'ils en sont exclus, malgré leur montant. La nuance mérite d'être expliquée, car elle est fine : les frais de garantie, eux, entrent bien dans le TAEG lorsqu'ils sont connus et déterminables, puisque sans garantie il n'y a pas de prêt. Or ces frais de garantie sont eux aussi perçus par le notaire. Ce n'est donc pas l'identité de celui qui encaisse qui départage les deux, mais bien le conditionnement de l'octroi. Je précise enfin que les frais de notaire, s'ils ne figurent pas dans le TAEG, doivent bien sûr être financés ou apportés : ils font partie du plan de financement, même s'ils ne font pas partie du coût du crédit.", "points": ["Critère unique : ce qui conditionne l'octroi du crédit", "Les frais d'acquisition sont dus même en cas de paiement comptant", "Ils appartiennent à l'achat, non au prêt", "Les frais de garantie, eux, y entrent : sans garantie, pas de prêt", "Ce n'est pas l'identité de celui qui encaisse qui départage"], "expl": "", "ref": "art. L. 314-1 et s. C. consom.", "minlen": 120}, {"th": "D", "kind": "open", "ask": "Distinguez le TAEG et le TEG : méthode de calcul, champ d'application et conséquence arithmétique.", "model": "Le TEG, taux effectif global, se calcule par la méthode proportionnelle : on détermine un taux de période, généralement mensuel, que l'on multiplie par le nombre de périodes dans l'année. Ce calcul ignore l'effet des intérêts composés et sous-estime donc le coût réel du crédit. Le TAEG, taux annuel effectif global, se calcule par la méthode équivalente, dite actuarielle, qui assure selon la méthode des intérêts composés l'égalité entre les sommes prêtées et l'ensemble des versements dus par l'emprunteur ; cette méthode est harmonisée au niveau européen, ce qui permet de comparer réellement les offres entre établissements et entre pays. Quant au champ d'application, depuis 2016 le TAEG est le taux des crédits à la consommation et des crédits immobiliers consentis aux particuliers, tandis que le TEG subsiste pour les prêts destinés à financer une activité professionnelle et pour ceux consentis à des personnes morales de droit public. La conséquence arithmétique est qu'à données identiques le TAEG est légèrement supérieur au TEG, non parce que le crédit coûte davantage, mais parce que le calcul est plus précis.", "points": ["TEG : méthode proportionnelle, taux de période × nombre de périodes", "TAEG : méthode équivalente, intérêts composés, harmonisée en Europe", "TAEG pour les particuliers (conso et immobilier)", "TEG pour les prêts professionnels et personnes morales de droit public", "Le TAEG est légèrement supérieur, parce que le calcul est plus juste"], "expl": "", "ref": "art. R. 314-2 et R. 314-3 C. consom.", "minlen": 110}, {"th": "D", "kind": "open", "ask": "Deux offres portent sur 200 000 € à 20 ans. La première affiche 3,10 % avec 50 € d'assurance mensuelle et 3 000 € de frais ; la seconde 3,25 % avec 28 € d'assurance et 1 500 € de frais. Comment conseillez-vous votre client ?", "model": "Je lui explique d'abord que le taux nominal ne permet pas de comparer deux offres, parce qu'il ne reflète que les intérêts : un crédit immobilier coûte aussi des frais de dossier, une assurance, une garantie et parfois une commission d'intermédiation. Sur ce dossier précis, la seconde offre, qui affiche pourtant le taux nominal le plus élevé, est la moins chère. Son coût total du crédit s'établit à environ quatre-vingts mille euros contre près de quatre-vingt-quatre mille pour la première, soit environ trois mille cent euros d'économie, et son échéance mensuelle est légèrement inférieure. Le TAEG le résume en un chiffre : environ trois virgule soixante-sept pour cent contre trois virgule quatre-vingt-trois. Ce qui renverse la comparaison, ce sont deux éléments invisibles dans le taux nominal : l'écart d'assurance, de vingt-deux euros par mois, soit plus de cinq mille euros sur vingt ans, et l'écart de frais initiaux, de mille cinq cents euros. Ensemble, ils dépassent largement le surcoût d'intérêts lié aux quinze centièmes de point de taux supplémentaires. Je conclus en rappelant que l'assurance emprunteur est la variable la plus lourde en crédit immobilier, et qu'elle mérite d'être travaillée autant que le taux.", "points": ["Le taux nominal ne compare rien : il ne reflète que les intérêts", "La seconde offre est la moins chère malgré un nominal plus élevé", "Écart de coût total d'environ 3 100 € · TAEG 3,67 % contre 3,83 %", "L'assurance (22 €/mois) et les frais (1 500 €) renversent la comparaison", "L'assurance emprunteur est la variable la plus lourde en immobilier"], "expl": "", "ref": "art. L. 314-1 et s. C. consom.", "minlen": 120}, {"th": "D", "kind": "open", "ask": "Un dossier présente un taux nominal acceptable mais une assurance très chère qui porte le TAEG au-delà du taux d'usure. Expliquez la situation au client et indiquez la voie à suivre.", "model": "Le TAEG doit rester inférieur au taux d'usure, qui est le plafond légal au-delà duquel un prêt est réputé usuraire. Ce seuil est fixé trimestriellement par la Banque de France, par catégorie de prêt, la catégorie dépendant notamment en immobilier de la durée et du caractère fixe ou variable du taux. Ici, le taux nominal est acceptable, mais la tarification de l'assurance, compte tenu de l'âge du client ou du risque de santé déclaré, fait franchir ce seuil au TAEG. Le dossier est donc refusé, et il faut le dire clairement au client : ce n'est pas sa solvabilité qui est en cause, c'est le taux qui est devenu illégal. Aucun prêteur ne prendra le risque de passer outre, car le dépassement l'exposerait à l'imputation de plein droit des perceptions excessives sur les intérêts puis sur le capital (art. L. 341-48), et à un délit puni de deux ans d'emprisonnement et de 300 000 € d'amende (art. L. 341-50). La voie à suivre est donc de rechercher une assurance moins chère à garanties équivalentes, ce qui relève du libre choix de l'assurance emprunteur. Sur ce type de dossier, le travail sur l'assurance fait plus pour le client que la négociation du taux.", "points": ["Le TAEG doit rester sous l'usure, seuil trimestriel de la Banque de France", "C'est l'assurance qui fait franchir le seuil, pas la solvabilité", "Le dossier est refusé parce que le taux est devenu illégal", "Sanction : imputation des perceptions excessives (L. 341-48) et délit (L. 341-50)", "Voie à suivre : assurance moins chère à garanties équivalentes"], "expl": "", "ref": "art. L. 314-6 C. consom.", "minlen": 110}, {"th": "E", "kind": "qcm", "ask": "Sur un prêt à taux fixe, qui porte le risque de hausse des taux ?", "options": ["L'emprunteur", "La banque, qui le facture — d'où un taux de départ plus élevé", "Il est partagé à parts égales", "Personne : le risque n'existe pas"], "correct": [1], "multi": false, "expl": "Sur un taux variable, le risque est porté intégralement par l'emprunteur, ce qui explique un taux de départ plus attractif. Sur un capé, il est partagé.", "ref": "nature des taux"}, {"th": "E", "kind": "qcm", "ask": "Qu'est-ce qu'un taux capé + 1 ?", "options": ["Un taux fixe majoré d'un point", "Un taux variable dont la variation ne peut excéder un point au-dessus du niveau initial", "Un taux fixe la première année, variable ensuite", "Un taux dont la mensualité augmente d'un pour cent par an"], "correct": [1], "multi": false, "expl": "C'est un taux VARIABLE dont la variation est plafonnée : le risque est partagé, l'emprunteur supportant la hausse jusqu'au cap et la banque au-delà. Son taux de départ est un peu plus élevé que celui d'un variable sec.", "ref": "nature des taux"}, {"th": "E", "kind": "qcm", "ask": "Dans un prêt amortissable à échéance constante, pourquoi les premières échéances remboursent-elles peu de capital ?", "options": ["Parce que la banque prélève ses frais en priorité", "Parce que les intérêts se calculent sur le capital restant dû, maximal au début", "Parce que l'assurance est concentrée sur les premières années", "Parce que la loi impose cet ordre d'imputation"], "correct": [1], "multi": false, "expl": "L'échéance est constante, mais sa composition ne l'est pas. Après cinq ans sur vingt ans, on a remboursé bien moins que le quart du capital.", "ref": "mécanique de l'amortissement"}, {"th": "E", "kind": "open", "ask": "Un client hésite entre un taux fixe, un taux variable et un taux capé. Expliquez-lui la répartition du risque et les deux questions à poser avant de choisir un taux variable.", "model": "La différence essentielle tient à la répartition du risque de hausse des taux. Sur un taux fixe, déterminé à la signature et invariable pendant toute la durée du prêt, l'échéance est connue à l'euro près et c'est la banque qui porte le risque — elle le facture, ce qui explique qu'un taux fixe soit en général plus élevé au départ. Sur un taux variable, indexé sur un indice de marché majoré d'une marge et révisé selon la périodicité prévue au contrat, le taux de départ est plus attractif mais le risque de hausse est porté intégralement par l'emprunteur. Le taux capé est un taux variable assorti d'une limite de variation : le risque est alors partagé, l'emprunteur supportant la hausse jusqu'au plafond et la banque au-delà, ce qui justifie un taux de départ légèrement supérieur à celui d'un variable sec. Avant de retenir un taux variable, deux questions doivent être posées. D'abord, le cap joue-t-il également à la baisse ? Beaucoup de contrats sont capés dans les deux sens, ce qui limite le gain autant que la perte. Ensuite, lors d'une révision, qu'est-ce qui varie : l'échéance, la durée, ou les deux ? Ce n'est pas la même chose pour le client, et cela figure au contrat.", "points": ["Fixe : risque porté par la banque, et facturé", "Variable : risque porté intégralement par l'emprunteur", "Capé : risque partagé, emprunteur jusqu'au plafond, banque au-delà", "Question 1 : le cap joue-t-il aussi à la baisse ?", "Question 2 : une révision fait-elle varier l'échéance, la durée, ou les deux ?"], "expl": "", "ref": "nature des taux", "minlen": 110}, {"th": "E", "kind": "open", "ask": "Expliquez la mécanique de l'amortissement et ses deux conséquences pratiques pour un client.", "model": "Dans un prêt amortissable classique, l'échéance est constante mais sa composition ne l'est pas. Les intérêts se calculent sur le capital restant dû : au début du prêt, ce capital est maximal, donc les intérêts sont élevés et la part de capital effectivement remboursée est faible. À mesure que le capital diminue, les intérêts diminuent à leur tour et la part de capital augmente. C'est pourquoi, après cinq ans sur un prêt de vingt ans, l'emprunteur a remboursé bien moins que le quart du capital emprunté, ce qui surprend souvent. Deux conséquences pratiques en découlent. D'abord, un remboursement anticipé est d'autant plus intéressant qu'il intervient tôt, puisqu'il supprime des intérêts futurs calculés sur un capital encore élevé ; effectué en fin de prêt, il ne fait économiser presque rien. Ensuite, une revente rapide laisse un capital restant dû proche du montant emprunté : si le prix du bien a baissé entre-temps, le prix de vente ne couvre pas la dette et le vendeur doit compléter sur ses fonds propres. C'est un point à signaler à tout client dont l'horizon de détention est court.", "points": ["Échéance constante, composition variable", "Les intérêts se calculent sur le capital restant dû, maximal au début", "Après cinq ans sur vingt, bien moins du quart remboursé", "Le remboursement anticipé est d'autant plus intéressant qu'il est précoce", "Revente rapide : capital restant dû élevé, risque si le prix a baissé"], "expl": "", "ref": "mécanique de l'amortissement", "minlen": 110}, {"th": "E", "kind": "open", "ask": "Récapitulez ce que la journée 5 vous a apporté, et dites ce qu'elle ne traite volontairement pas.", "model": "La journée 5 pose le cadre du crédit immobilier, avant tout produit. Elle m'a apporté quatre choses. Le cadre juridique d'abord : la loi Scrivener du 13 juillet 1979 avec l'offre préalable, le délai de réflexion de dix jours et l'interdépendance du prêt et de la vente, complétée par le délai de rétractation de l'acquéreur issu de la loi SRU et par le régime en vigueur résultant de l'ordonnance du 25 mars 2016. Les acteurs ensuite : le notaire et son monopole de l'authenticité, l'agent immobilier soumis à la loi Hoguet, le promoteur qui vend ce qu'il produit, le constructeur qui bâtit sur le terrain d'autrui, le conseiller en investissements financiers, et le conseil en gestion de patrimoine qui n'est pas un statut mais une bannière. La publicité foncière ensuite, qui rend opposable sans rien créer, avec l'effet relatif et la règle du rang. Les chiffres enfin : le TAEG et son critère unique du conditionnement de l'octroi, l'usure, et la répartition du risque entre taux fixe, variable et capé. Ce qu'elle ne traite volontairement pas, ce sont les produits eux-mêmes — prêt relais, prêt in fine, VEFA, CCMI, prêts aidés et prêt à taux zéro — qui relèvent de la journée 7, ainsi que la constitution du dossier, la fiche standardisée d'information et l'offre de prêt, qui relèvent de la journée 11.", "points": ["Le cadre : Scrivener, SRU, ordonnance de 2016", "Les acteurs : notaire, agent immobilier, promoteur, constructeur, CIF, CGP", "La publicité foncière : opposabilité, effet relatif, rang", "Les chiffres : TAEG, usure, taux fixe / variable / capé, amortissement", "NON traité ici : les produits (journée 7) et le dossier (journée 11)"], "expl": "", "ref": "synthèse de la journée 5", "minlen": 110}], "HAS_THEMES": true, "PASS": 70, "PASS_OK": "<b>Seuil atteint.</b> Vous êtes au niveau attendu sur les questions à choix de la journée 5.<br><br>Deux points de vigilance malgré tout. D'une part, le pourcentage ci-dessus ne porte que sur les questions à choix : reprenez vos 18 rédactions et confrontez-les point par point aux réponses attendues affichées sous chaque énoncé — c'est là que se joue la moitié de l'épreuve. D'autre part, consultez le <b>bilan par thème</b> : un score global satisfaisant peut masquer un module faible.<br><br><b>Format de l'épreuve réelle :</b> <b>55 questions de type QCM</b> et <b>45 questions ouvertes</b>. <b>70 % de réussite</b> sont exigés pour obtenir l'examen.<br><br>Téléchargez l'attestation et déposez-la dans l'activité 360Learning.", "PASS_KO": "<b>Seuil de 70 % non atteint.</b> Ce n'est pas un échec : c'est exactement l'information dont vous aviez besoin avant l'épreuve.<br><br><b>Ce que nous vous invitons à faire, dans cet ordre :</b><ol style='margin:8px 0 0;padding-left:22px'><li>Ouvrez le <b>bilan par thème</b> ci-dessous : il désigne précisément les modules à reprendre.</li><li><b>Relisez les fiches mémo</b> des modules concernés. Elles ont été conçues pour cela : chaque notion y tient en un tableau, avec les pièges signalés et la méthode d'examen. Une relecture attentive des fiches mémo vaut mieux qu'un nouveau visionnage des vidéos.</li><li>Reprenez les <b>exemples commentés</b> des mêmes modules : ils appliquent les règles à un cas concret, ce qui les ancre bien plus durablement qu'une définition.</li><li>Refaites les <b>exercices d'entraînement</b>, qui ne sont pas notés et restent rejouables autant de fois que vous le souhaitez.</li><li>Repassez ensuite cette évaluation.</li></ol><br>Relisez également vos rédactions en les confrontant aux réponses attendues : sur l'épreuve, les questions ouvertes pèsent presque autant que les questions à choix.<br><br><b>Format de l'épreuve réelle :</b> <b>55 questions de type QCM</b> et <b>45 questions ouvertes</b>. <b>70 % de réussite</b> sont exigés pour obtenir l'examen.<br><br>Déposez malgré tout votre attestation dans l'activité 360Learning : votre formateur verra où vous accrochez et pourra vous accompagner.", "PDF": {"header": "TMK PERFORMANCES · IOBSP NIVEAU 2 — JOURNÉE 5 · CRÉDIT IMMOBILIER (1/3) · ÉVALUATION GLOBALE", "att_title": "Attestation — Évaluation globale de la journée 5", "att_sub": "Crédit immobilier (1/3) — encadrement, intervenants, publicité foncière, chiffres", "footer": "TMK Performances - N° Siret : 49841924100027 - Code NAF : 8559A", "fname": "Attestation_J5_Evaluation_globale"}};
+const THEME_INFO = CFG.THEME_INFO, THEME_ORDER = CFG.THEME_ORDER;
+const QUESTIONS = CFG.QUESTIONS, TOTAL = QUESTIONS.length, HAS_THEMES = CFG.HAS_THEMES;
+const IS_OPEN = (c)=>c.kind==="open";
+const QCM_N = QUESTIONS.filter(c=>!IS_OPEN(c)).length;
+const OPEN_N = TOTAL - QCM_N;
+const PASS = CFG.PASS, PASS_OK = CFG.PASS_OK, PASS_KO = CFG.PASS_KO;
+const PDF = CFG.PDF;
+
+const state = { nom:"", prenom:"", answers:{}, validated:false, score:0, pdfGenerated:false, dateQuiz:null };
+
+document.getElementById("nom").addEventListener("input", checkIdentity);
+document.getElementById("prenom").addEventListener("input", checkIdentity);
+function checkIdentity(){const n=document.getElementById("nom").value.trim(),p=document.getElementById("prenom").value.trim();document.getElementById("btn-start").disabled=!(n&&p);}
+
+function startQuiz(){
+  state.nom=document.getElementById("nom").value.trim().toUpperCase();
+  let p=document.getElementById("prenom").value.trim();
+  state.prenom=p.charAt(0).toUpperCase()+p.slice(1).toLowerCase();
+  state.dateQuiz=new Date();
+  const full=state.prenom+" "+state.nom;
+  document.getElementById("stagiaire-name").textContent=full;
+  document.getElementById("stagiaire-name-2").textContent=full;
+  const d=state.dateQuiz.toLocaleDateString("fr-FR",{day:"2-digit",month:"long",year:"numeric"});
+  document.getElementById("date-quiz").textContent=d; document.getElementById("date-quiz-2").textContent=d;
+  document.getElementById("screen-identity").style.display="none";
+  document.getElementById("screen-quiz").style.display="block";
+  if(!HAS_THEMES) document.getElementById("recap-block").style.display="none";
+  render();
+}
+
+function themeTag(c){
+  if(!c.th || !THEME_INFO[c.th]) return "";
+  return `<span class="theme-tag">${c.th} · ${THEME_INFO[c.th].label}</span>`;
+}
+
+function render(){
+  const qcm=document.getElementById("qcm"); qcm.innerHTML="";
+  QUESTIONS.forEach((c,i)=>{
+    const tag=themeTag(c);
+    let control;
+    if(IS_OPEN(c)){
+      const prev=state.answers[i]||"";
+      control=`<div class="open-tag">Question ouverte</div><textarea class="oa" data-q="${i}" rows="4" placeholder="Rédigez votre réponse, comme à l'examen — en phrases complètes.">${prev}</textarea><div class="oa-hint">Réponse attendue : ${c.minlen} caractères minimum. La réponse attendue s'affichera après validation : c'est à vous de confronter la vôtre.</div>`;
+    } else if(c.multi){
+      let boxes="";
+      c.options.forEach((o,oi)=>{boxes+=`<label data-opt="${oi}"><input type="checkbox" data-q="${i}" value="${oi}"><span>${o}</span></label>`;});
+      control=`<div class="multi-tag">Plusieurs réponses</div><div class="checks" data-q="${i}">${boxes}</div>`;
+    } else {
+      let opts='<option value="">— choisir une réponse —</option>';
+      c.options.forEach((o,oi)=>opts+=`<option value="${oi}">${o}</option>`);
+      control=`<select class="cs" data-q="${i}">${opts}</select>`;
+    }
+    qcm.innerHTML+=`<div class="cq"><div class="ask"><span class="qn">${i+1}</span><span>${c.ask}${tag}</span></div>${control}<div class="cfb" id="cfb-${i}"></div></div>`;
+  });
+  document.querySelectorAll("select.cs").forEach(s=>s.addEventListener("change",onSelect));
+  document.querySelectorAll(".checks input").forEach(s=>s.addEventListener("change",onCheck));
+  document.querySelectorAll("textarea.oa").forEach(s=>s.addEventListener("input",onOpen));
+  update();
+}
+
+function onSelect(e){ if(state.validated)return; const i=+e.currentTarget.dataset.q,v=e.currentTarget.value; if(v==="") delete state.answers[i]; else state.answers[i]=+v; update(); }
+function onCheck(e){
+  if(state.validated)return; const i=+e.currentTarget.dataset.q;
+  const checked=[...document.querySelectorAll(`.checks input[data-q="${i}"]:checked`)].map(x=>+x.value);
+  if(checked.length===0) delete state.answers[i]; else state.answers[i]=checked.sort((a,b)=>a-b);
+  update();
+}
+
+function onOpen(e){
+  if(state.validated)return; const i=+e.currentTarget.dataset.q, v=e.currentTarget.value.trim();
+  if(v.length < QUESTIONS[i].minlen) delete state.answers[i]; else state.answers[i]=e.currentTarget.value.trim();
+  update();
+}
+
+function update(){
+  const n=Object.keys(state.answers).length;
+  document.getElementById("fill").style.width=(n/TOTAL*100)+"%";
+  document.getElementById("plabel").textContent=n+" / "+TOTAL+" répondu"+(n>1?"es":"");
+  document.getElementById("btn-validate").disabled=(n!==TOTAL);
+}
+
+function isCorrect(c, ans){
+  if(IS_OPEN(c)) return null;          // non notée automatiquement
+  if(ans==null) return false;
+  if(c.multi){
+    const a=[...ans].sort((x,y)=>x-y).join(","), g=[...c.correct].sort((x,y)=>x-y).join(",");
+    return a===g;
+  }
+  return ans===c.correct[0];
+}
+function answerLabel(c, ans){
+  if(ans==null) return "—";
+  if(c.multi) return ans.map(i=>c.options[i]).join(" ; ");
+  return c.options[ans];
+}
+function correctLabel(c){
+  return c.correct.map(i=>c.options[i]).join(" ; ");
+}
+
+function themeStats(){
+  const st={}; THEME_ORDER.forEach(t=>st[t]={ok:0,total:0});
+  QUESTIONS.forEach((c,i)=>{ if(IS_OPEN(c)||!st[c.th])return; st[c.th].total++; if(isCorrect(c,state.answers[i])) st[c.th].ok++; });
+  return st;
+}
+
+function validateQuiz(){
+  if(state.validated)return; state.validated=true;
+  let score=0;
+  QUESTIONS.forEach((c,i)=>{
+    const ans=state.answers[i], ok=isCorrect(c,ans); if(ok)score++;
+    if(IS_OPEN(c)){
+      const ta=document.querySelector(`textarea.oa[data-q="${i}"]`); ta.disabled=true;
+      const pts=(c.points&&c.points.length)?`<ul>${c.points.map(x=>`<li>${x}</li>`).join("")}</ul>`:"";
+      const rf=c.ref?`<p class="ref">${c.ref}</p>`:"";
+      const f0=document.getElementById("cfb-"+i);
+      f0.className="cfb good";
+      f0.innerHTML=`<div class="model"><h5>La réponse attendue</h5><p>${c.model}</p>${pts}${rf}<p class="note">Cette question n'est pas notée automatiquement : confrontez votre rédaction à la réponse attendue. Votre texte et la réponse attendue figurent tous deux dans votre attestation PDF.</p></div>`;
+      requestAnimationFrame(()=>f0.classList.add("show"));
+      return;
+    }
+    if(c.multi){
+      const cont=document.querySelector(`.checks[data-q="${i}"]`);
+      cont.querySelectorAll("input").forEach(x=>x.disabled=true);
+      c.correct.forEach(g=>cont.querySelector(`label[data-opt="${g}"]`).classList.add("ok"));
+      (ans||[]).forEach(a=>{ if(!c.correct.includes(a)) cont.querySelector(`label[data-opt="${a}"]`).classList.add("ko"); });
+    } else {
+      const sel=document.querySelector(`select.cs[data-q="${i}"]`); sel.disabled=true;
+      sel.classList.add(ok?"ok":"ko");
+    }
+    const f=document.getElementById("cfb-"+i);
+    f.className="cfb "+(ok?"good":"bad");
+    const vd=ok?"Exact.":((c.multi?"Bonnes réponses : ":"Bonne réponse : ")+correctLabel(c)+".");
+    const refLine=c.ref?`<br><span class="ref">${c.ref}</span>`:"";
+    f.innerHTML=`<span class="vd">${vd}</span> ${c.expl}${refLine}`;
+    requestAnimationFrame(()=>f.classList.add("show"));
+  });
+  state.score=score;
+  document.getElementById("score").textContent=score;
+  document.getElementById("btn-validate").disabled=true;
+  generatePDF();
+  showResults();
+}
+
+function showResults(){
+  const pct=Math.round(state.score/QCM_N*100);
+  document.getElementById("screen-result").style.display="block";
+  document.getElementById("score-value").textContent=state.score+"/"+QCM_N;
+  const sl=document.getElementById("score-label"); if(sl) sl.textContent = OPEN_N ? "questions à choix" : "questions";
+  const c=document.getElementById("score-circle"),m=document.getElementById("result-message"),d=document.getElementById("result-detail");
+  const suffix = OPEN_N ? " Vos "+OPEN_N+" question"+(OPEN_N>1?"s":"")+" ouverte"+(OPEN_N>1?"s ne sont":" n'est")+" pas notée"+(OPEN_N>1?"s":"")+" : confrontez votre rédaction à la réponse attendue, affichée sous chacune." : "";
+  c.className="score-circle";
+  if(PASS){
+    const ok = pct>=PASS;
+    c.classList.add(ok?(pct>=90?"excellent":"good"):(pct>=50?"average":"poor"));
+    m.textContent = ok ? "Objectif atteint" : "Objectif non atteint";
+    d.textContent = (ok?"Vous êtes au-dessus du seuil de "+PASS+" %.":"Vous êtes en dessous du seuil de "+PASS+" %.")+suffix;
+    const b=document.getElementById("pass-banner");
+    b.className="pass-banner "+(ok?"ok":"ko");
+    b.innerHTML = ok
+      ? `<b>Réussite — ${pct} % de bonnes réponses</b>${PASS_OK||"Vous avez atteint le seuil de "+PASS+" %. Les acquis de la journée sont consolidés : vous pouvez aborder la suite du parcours."}`
+      : `<b>Seuil non atteint — ${pct} % de bonnes réponses</b>${PASS_KO||"Le seuil de réussite est fixé à "+PASS+" %. Reprenez les fiches mémo et les séquences des thèmes en rouge, puis <strong>refaites ce QCM afin de vous entraîner</strong> : c'est en le repassant que les automatismes s'installent."}`;
+    b.style.display="block";
+  }
+  else if(pct>=90){c.classList.add("excellent");m.textContent="Évaluation validée — Excellent !";d.textContent="Vous maîtrisez l'ensemble des notions du module."+suffix;}
+  else if(pct>=70){c.classList.add("good");m.textContent="Évaluation validée";d.textContent="Bon niveau global. Le détail commenté de vos réponses figure ci-dessus."+suffix;}
+  else if(pct>=50){c.classList.add("average");m.textContent="Presque — à consolider";d.textContent="Acquis partiels. Le détail commenté de chaque réponse figure ci-dessus."+suffix;}
+  else{c.classList.add("poor");m.textContent="À retravailler";d.textContent="Le détail commenté reprend la bonne réponse et l'explication de chaque question."+suffix;}
+
+  if(HAS_THEMES){
+    const st=themeStats(); let html="";
+    THEME_ORDER.forEach(t=>{
+      const s=st[t]; if(!s||s.total===0) return;
+      const full=(s.ok===s.total);
+      const color=full?"var(--ok)":(s.ok===0?"var(--ko)":"var(--amber)");
+      html+=`<div class="recap-row"><span class="dot" style="background:${color}"></span><span class="lab">${t} · ${THEME_INFO[t].label}</span><span class="sc">${s.ok} / ${s.total}</span></div>`;
+    });
+    document.getElementById("recap-list").innerHTML=html;
+  }
+  const np=document.getElementById("note-pdf");
+  if(state.pdfGenerated){np.textContent="✓ Votre attestation PDF a été générée et téléchargée pour cette session. Vous pouvez refaire l'évaluation, mais aucun nouveau PDF ne sera généré.";np.style.display="block";}
+  document.getElementById("screen-result").scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+function restartQuiz(){
+  state.answers={};state.validated=false;state.score=0;state.dateQuiz=new Date();
+  const d=state.dateQuiz.toLocaleDateString("fr-FR",{day:"2-digit",month:"long",year:"numeric"});
+  document.getElementById("date-quiz").textContent=d;document.getElementById("date-quiz-2").textContent=d;
+  document.getElementById("score").textContent="—";
+  const bv=document.getElementById("btn-validate");
+  if(state.pdfGenerated) bv.textContent="Valider l'évaluation";
+  document.getElementById("note-pdf").style.display="none";
+  const pb=document.getElementById("pass-banner"); if(pb) pb.style.display="none";
+  document.getElementById("screen-result").style.display="none";
+  render(); window.scrollTo({top:0,behavior:"smooth"});
+}
+
+/* ───────── PDF (attestation) ───────── */
+function generatePDF(){
+  if(state.pdfGenerated)return;
+  if(!window.jspdf||!window.jspdf.jsPDF){return;}
+  const { jsPDF }=window.jspdf;
+  const doc=new jsPDF({unit:"mm",format:"a4"});
+  const pageW=doc.internal.pageSize.getWidth(), pageH=doc.internal.pageSize.getHeight();
+  const margin=18; let y=0;
+  const NAVY=[22,36,59],BLUE=[31,78,121],OKC=[47,122,79],KOC=[178,59,59],AMB=[181,133,42];
+  const footer=()=>{const tp=doc.internal.getNumberOfPages();for(let i=1;i<=tp;i++){doc.setPage(i);doc.setFont("helvetica","italic");doc.setFontSize(8);doc.setTextColor(150,150,150);doc.text(`Page ${i} / ${tp}  —  ${PDF.footer}`,pageW/2,pageH-8,{align:"center"});}};
+  const ensure=(h)=>{if(y+h>pageH-18){doc.addPage();y=margin;}};
+
+  doc.setFillColor(...NAVY);doc.rect(0,0,pageW,38,"F");
+  doc.setTextColor(255,255,255);doc.setFont("helvetica","bold");doc.setFontSize(9);
+  doc.text(PDF.header,margin,13);
+  doc.setFontSize(15);doc.text(PDF.att_title,margin,24);
+  doc.setFont("helvetica","normal");doc.setFontSize(10);
+  doc.text(PDF.att_sub,margin,32);
+  y=50;
+
+  doc.setFillColor(239,234,223);doc.rect(margin,y,pageW-2*margin,26,"F");
+  doc.setTextColor(...BLUE);doc.setFont("helvetica","bold");doc.setFontSize(11);doc.text("Stagiaire",margin+4,y+7);
+  doc.setFont("helvetica","normal");doc.setTextColor(40,40,40);doc.setFontSize(12);doc.text(`${state.prenom} ${state.nom}`,margin+4,y+15);
+  doc.setFontSize(9);doc.setTextColor(100,100,100);
+  const dS=state.dateQuiz.toLocaleDateString("fr-FR",{day:"2-digit",month:"long",year:"numeric"});
+  const tS=state.dateQuiz.toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
+  doc.text(`Évaluation réalisée le ${dS} à ${tS}`,margin+4,y+22);
+  y+=36;
+
+  const pct=Math.round(state.score/QCM_N*100);
+  let col=KOC,lab="À retravailler";
+  if(PASS){ const ok=pct>=PASS; col=ok?OKC:AMB; lab=ok?"Réussite":"Seuil non atteint"; }
+  else if(pct>=90){col=OKC;lab="Excellent";}else if(pct>=70){col=BLUE;lab="Validé";}else if(pct>=50){col=AMB;lab="À consolider";}
+  doc.setFillColor(...col);doc.rect(margin,y,pageW-2*margin,28,"F");
+  doc.setTextColor(255,255,255);doc.setFont("helvetica","bold");doc.setFontSize(22);doc.text(`${state.score} / ${QCM_N}`,margin+6,y+13);
+  doc.setFontSize(11);doc.text(`(${pct}%)  —  questions à choix`,margin+6,y+22);
+  doc.setFontSize(13);doc.text(lab,pageW-margin-6,y+17,{align:"right"});
+  y+=34;
+
+  if(PASS){
+    const ok=pct>=PASS;
+    const msg = ok ? `Seuil de reussite : ${PASS} %. Objectif atteint.`
+                   : `Seuil de reussite : ${PASS} %. Objectif non atteint : refaites ce QCM afin de vous entrainer.`;
+    doc.setFont("helvetica","italic");doc.setFontSize(9);doc.setTextColor(...(ok?OKC:AMB));
+    doc.text(msg,margin,y+2); y+=8;
+  }
+  if(OPEN_N){
+    doc.setFont("helvetica","italic");doc.setFontSize(8.5);doc.setTextColor(120,120,120);
+    doc.text(`${OPEN_N} question(s) ouverte(s) : non notees automatiquement — voir la section dediee en fin de document.`,margin,y+2);
+    y+=8;
+  }
+  y+=2;
+
+  if(HAS_THEMES){
+    const st=themeStats();
+    doc.setFillColor(...NAVY);doc.rect(margin,y,pageW-2*margin,9,"F");
+    doc.setTextColor(255,255,255);doc.setFont("helvetica","bold");doc.setFontSize(11);doc.text("Bilan par thème",margin+4,y+6.2);y+=12;
+    THEME_ORDER.forEach(t=>{
+      const s=st[t]; if(!s||s.total===0) return;
+      const full=(s.ok===s.total); const cc=full?OKC:(s.ok===0?KOC:AMB);
+      ensure(7);
+      doc.setFillColor(...cc);doc.circle(margin+3,y-0.5,1.4,"F");
+      doc.setFont("helvetica","normal");doc.setFontSize(9.5);doc.setTextColor(55,55,55);
+      doc.text(`${t} · ${THEME_INFO[t].label}`,margin+8,y);
+      doc.setFont("helvetica","bold");doc.text(`${s.ok} / ${s.total}`,margin+92,y);
+      y+=6.5;
+    });
+    y+=4;
+  }
+
+  doc.setFillColor(...NAVY);doc.rect(margin,y,pageW-2*margin,9,"F");
+  doc.setTextColor(255,255,255);doc.setFont("helvetica","bold");doc.setFontSize(11);doc.text("Détail des réponses",margin+4,y+6.2);
+  doc.setFontSize(9);doc.text(`${QCM_N} question${QCM_N>1?"s":""} à choix`,pageW-margin-4,y+6.2,{align:"right"});y+=12;
+
+  QUESTIONS.forEach((c,i)=>{
+    if(IS_OPEN(c)) return;
+    const ans=state.answers[i], ok=isCorrect(c,ans);
+    const head=(c.th?`[${c.th}] `:"")+c.ask;
+    const qLines=doc.splitTextToSize(`${i+1}. ${head}`,pageW-2*margin-16);
+    const yLines=doc.splitTextToSize(`Votre réponse : ${answerLabel(c,ans)}`,pageW-2*margin-10);
+    const gLines=doc.splitTextToSize(`${c.multi?"Bonnes réponses":"Bonne réponse"} : ${correctLabel(c)}`,pageW-2*margin-10);
+    const eLines=doc.splitTextToSize(c.expl+(c.ref?"  ("+c.ref+")":""),pageW-2*margin-10);
+    const h=6+qLines.length*4+4+yLines.length*4+gLines.length*4+4+eLines.length*4+6;
+    ensure(h);
+    doc.setFillColor(ok?OKC[0]:KOC[0],ok?OKC[1]:KOC[1],ok?OKC[2]:KOC[2]);doc.rect(margin,y,2,h-3,"F");
+    doc.setFont("helvetica","bold");doc.setFontSize(9.5);doc.setTextColor(ok?OKC[0]:KOC[0],ok?OKC[1]:KOC[1],ok?OKC[2]:KOC[2]);doc.text(ok?"[OK]":"[X]",margin+5,y+5);
+    doc.setTextColor(55,55,55);doc.text(qLines,margin+16,y+5);
+    let yy=y+5+qLines.length*4+2;
+    doc.setFont("helvetica","bold");doc.setFontSize(8.5);doc.setTextColor(100,100,100);doc.text(yLines,margin+5,yy);yy+=yLines.length*4;
+    doc.setTextColor(40,100,60);doc.text(gLines,margin+5,yy);yy+=gLines.length*4+1;
+    doc.setFont("helvetica","italic");doc.setFontSize(8.5);doc.setTextColor(90,90,90);doc.text(eLines,margin+5,yy);
+    y+=h;
+  });
+
+  if(OPEN_N){
+    ensure(20);
+    doc.setFillColor(...NAVY);doc.rect(margin,y,pageW-2*margin,9,"F");
+    doc.setTextColor(255,255,255);doc.setFont("helvetica","bold");doc.setFontSize(11);doc.text("Questions ouvertes — votre rédaction et la réponse attendue",margin+4,y+6.2);
+    doc.setFontSize(9);doc.text(`${OPEN_N} question${OPEN_N>1?"s":""}`,pageW-margin-4,y+6.2,{align:"right"});y+=12;
+    doc.setFont("helvetica","italic");doc.setFontSize(8.5);doc.setTextColor(120,120,120);
+    const iL=doc.splitTextToSize("Ces questions ne sont pas notees automatiquement : aucune correction de texte libre ne serait fiable. Confrontez votre redaction a la reponse attendue, et sollicitez votre referent pedagogique en cas de doute.",pageW-2*margin);
+    doc.text(iL,margin,y); y+=iL.length*4+4;
+
+    let n=0;
+    QUESTIONS.forEach((c,i)=>{
+      if(!IS_OPEN(c)) return; n++;
+      const mine=(state.answers[i]||"— non renseignée —");
+      const qLines=doc.splitTextToSize(`${n}. ${(c.th?`[${c.th}] `:"")+c.ask}`,pageW-2*margin-10);
+      const aLines=doc.splitTextToSize(mine,pageW-2*margin-14);
+      const mLines=doc.splitTextToSize(c.model,pageW-2*margin-14);
+      const pLines=(c.points||[]).map(x=>doc.splitTextToSize("- "+x,pageW-2*margin-16)).flat();
+      const h=6+qLines.length*4+6+aLines.length*4+6+mLines.length*4+pLines.length*4+(c.ref?5:0)+8;
+      ensure(Math.min(h,pageH-2*margin));
+      doc.setFillColor(...BLUE);doc.rect(margin,y,2,Math.min(h-3,pageH-y-20),"F");
+      doc.setFont("helvetica","bold");doc.setFontSize(9.5);doc.setTextColor(55,55,55);
+      doc.text(qLines,margin+6,y+5); let yy=y+5+qLines.length*4+3;
+      doc.setFont("helvetica","bold");doc.setFontSize(8.5);doc.setTextColor(100,100,100);doc.text("Votre reponse :",margin+6,yy);yy+=4;
+      doc.setFont("helvetica","normal");doc.setTextColor(60,60,60);
+      aLines.forEach(l=>{ensure(5);doc.text(l,margin+10,yy);yy+=4;});
+      yy+=3;
+      doc.setFont("helvetica","bold");doc.setTextColor(40,100,60);ensure(5);doc.text("Reponse attendue :",margin+6,yy);yy+=4;
+      doc.setFont("helvetica","normal");doc.setTextColor(60,80,65);
+      mLines.forEach(l=>{ensure(5);doc.text(l,margin+10,yy);yy+=4;});
+      pLines.forEach(l=>{ensure(5);doc.text(l,margin+12,yy);yy+=4;});
+      if(c.ref){doc.setFont("helvetica","italic");doc.setTextColor(150,120,80);ensure(5);doc.text(c.ref,margin+10,yy+1);yy+=5;}
+      y=yy+6;
+    });
+  }
+
+  footer();
+  const safe=(s)=>s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-zA-Z0-9]/g,"_");
+  const df=state.dateQuiz.toISOString().slice(0,10);
+  doc.save(`${PDF.fname}_${safe(state.nom)}_${safe(state.prenom)}_${df}.pdf`);
+
+  state.pdfGenerated=true;
+}
+</script>
+
+<script>
+(function(){
+  function libre(e){ var t=e.target; return t && (t.tagName==='TEXTAREA'||t.tagName==='INPUT'); }
+  ['copy','cut','contextmenu','dragstart'].forEach(function(ev){
+    document.addEventListener(ev,function(e){ if(!libre(e)) e.preventDefault(); });
+  });
+  document.addEventListener('keydown',function(e){
+    if(libre(e)) return;
+    var k=(e.key||'').toLowerCase();
+    if((e.ctrlKey||e.metaKey) && ['c','x','a','s','p','u'].indexOf(k)>-1) e.preventDefault();
+  });
+})();
+</script>
+</body>
+</html>
